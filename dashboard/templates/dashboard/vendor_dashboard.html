@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vendor Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h1>{{ vendor.store_name }} Analytics Dashboard</h1>
+
+<hr>
+
+<h3>📦 Products: {{ total_products }}</h3>
+<h3>🧾 Orders: {{ total_orders }}</h3>
+<h3>💰 Revenue: ₹{{ revenue }}</h3>
+
+<hr>
+
+<h2>📊 Monthly Revenue</h2>
+
+<canvas id="revenueChart" width="400" height="200"></canvas>
+
+<script>
+const ctx = document.getElementById('revenueChart');
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ labels|safe }},
+        datasets: [{
+            label: 'Revenue',
+            data: {{ data|safe }},
+            borderWidth: 2
+        }]
+    }
+});
+</script>
+
+<hr>
+
+<h2>📦 Order Status</h2>
+
+<canvas id="statusChart"></canvas>
+
+<script>
+new Chart(document.getElementById('statusChart'), {
+    type: 'pie',
+    data: {
+        labels: ['Pending', 'Shipped', 'Delivered'],
+        datasets: [{
+            data: [{{ pending }}, {{ shipped }}, {{ delivered }}]
+        }]
+    }
+});
+</script>
+
+</body>
+</html>

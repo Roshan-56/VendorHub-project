@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Commission Dashboard</title>
+    <style>
+        .card {
+            padding: 20px;
+            margin: 10px;
+            border: 1px solid #ddd;
+            display: inline-block;
+            width: 250px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>💰 Platform Commission Dashboard</h1>
+
+<div class="card">
+    <h3>Total Sales</h3>
+    <p>₹{{ total_sales }}</p>
+</div>
+
+<div class="card">
+    <h3>Platform Commission ({{ commission_rate }}%)</h3>
+    <p>₹{{ total_commission }}</p>
+</div>
+
+<div class="card">
+    <h3>Vendor Earnings</h3>
+    <p>₹{{ total_vendor_earnings }}</p>
+</div>
+
+</body>
+</html>

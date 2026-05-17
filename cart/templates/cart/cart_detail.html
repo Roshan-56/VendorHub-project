@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Cart</title>
+</head>
+<body>
+
+<h1>Your Cart</h1>
+
+{% if cart.items.all %}
+    <table border="1" cellpadding="10">
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Total</th>
+            <th>Action</th>
+        </tr>
+
+        {% for item in cart.items.all %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>₹{{ item.product.price }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>₹{{ item.get_total }}</td>
+            <td>
+                
+                <a href="{% url 'update_quantity' item.id 'inc' %}">+</a>
+                <a href="{% url 'update_quantity' item.id 'dec' %}">-</a>
+                <a href="{% url 'remove_item' item.id %}">Remove</a>
+
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Total: ₹{{ cart.get_total }}</h2>
+
+    <a href="#">Checkout (Next Step)</a>
+
+{% else %}
+    <p>Your cart is empty</p>
+{% endif %}
+
+</body>
+</html>
