@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Analytics Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f8fafc;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #64748b;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .card h2 {
+            margin: 0;
+            font-size: 32px;
+            color: #3b82f6;
+        }
+
+        .card span {
+            display: block;
+            margin-top: 8px;
+            color: #64748b;
+        }
+
+        .chart-box {
+            background: white;
+            margin-top: 40px;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        .bar {
+            height: 28px;
+            border-radius: 6px;
+            margin: 12px 0;
+            color: white;
+            font-weight: 600;
+            line-height: 28px;
+            padding-left: 10px;
+        }
+
+        .bar1 { width: 85%; background: #3b82f6; }
+        .bar2 { width: 65%; background: #10b981; }
+        .bar3 { width: 50%; background: #f97316; }
+        .bar4 { width: 35%; background: #8b5cf6; }
+
+        .actions {
+            margin-top: 40px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 22px;
+            margin-right: 10px;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .btn.secondary {
+            background: #0f172a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Analytics Dashboard</h1>
+        <p>Track sales performance and platform growth.</p>
+
+        <div class="grid">
+            <div class="card">
+                <h2>₹1,25,000</h2>
+                <span>Total Revenue</span>
+            </div>
+
+            <div class="card">
+                <h2>420</h2>
+                <span>Total Orders</span>
+            </div>
+
+            <div class="card">
+                <h2>120</h2>
+                <span>Active Vendors</span>
+            </div>
+
+            <div class="card">
+                <h2>95%</h2>
+                <span>Customer Satisfaction</span>
+            </div>
+        </div>
+
+        <div class="chart-box">
+            <h2>Monthly Sales Performance</h2>
+
+            <div class="bar bar1">January</div>
+            <div class="bar bar2">February</div>
+            <div class="bar bar3">March</div>
+            <div class="bar bar4">April</div>
+        </div>
+
+        <div class="actions">
+            <a href="/" class="btn">Home</a>
+            <a href="/orders/commission/" class="btn secondary">Commission Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

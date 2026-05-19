@@ -1,46 +1,206 @@
+<!-- cart/templates/cart/cart_detail.html -->
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Your Cart</title>
+    <title>Your Cart - VendorHub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .cart-item img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-details h3 {
+            margin: 0 0 10px 0;
+        }
+
+        .price {
+            color: green;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .quantity {
+            margin: 10px 0;
+        }
+
+        .subtotal {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .remove-btn {
+            display: inline-block;
+            padding: 8px 14px;
+            background: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 8px;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .summary {
+            margin-top: 30px;
+            text-align: right;
+        }
+
+        .summary h2 {
+            color: #007bff;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin: 10px 5px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .checkout-btn {
+            background: #28a745;
+        }
+
+        .checkout-btn:hover {
+            background: #218838;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .navigation {
+            margin-top: 40px;
+        }
+
+        .navigation ul {
+            line-height: 2;
+        }
+    </style>
 </head>
 <body>
 
-<h1>Your Cart</h1>
+<div class="container">
 
-{% if cart.items.all %}
-    <table border="1" cellpadding="10">
-        <tr>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Qty</th>
-            <th>Total</th>
-            <th>Action</th>
-        </tr>
+    <h1>Your Shopping Cart</h1>
 
-        {% for item in cart.items.all %}
-        <tr>
-            <td>{{ item.product.name }}</td>
-            <td>₹{{ item.product.price }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>₹{{ item.get_total }}</td>
-            <td>
-                
-                <a href="{% url 'update_quantity' item.id 'inc' %}">+</a>
-                <a href="{% url 'update_quantity' item.id 'dec' %}">-</a>
-                <a href="{% url 'remove_item' item.id %}">Remove</a>
+    {% if cart_items %}
 
-            </td>
-        </tr>
+        {% for item in cart_items %}
+            <div class="cart-item">
+
+                {% if item.product.image %}
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                {% endif %}
+
+                <div class="cart-item-details">
+                    <h3>{{ item.product.name }}</h3>
+
+                    <p class="price">
+                        ₹{{ item.product.price }}
+                    </p>
+
+                    <p class="quantity">
+                        Quantity: {{ item.quantity }}
+                    </p>
+
+                    <p class="subtotal">
+                        Subtotal:
+                        ₹{{ item.product.price|floatformat:2|add:"0" }}
+                    </p>
+
+                    <a href="/cart/remove/{{ item.id }}/" class="remove-btn">
+                        Remove
+                    </a>
+                </div>
+            </div>
         {% endfor %}
-    </table>
 
-    <h2>Total: ₹{{ cart.get_total }}</h2>
+        <div class="summary">
+            <h2>Total Amount: ₹{{ total }}</h2>
 
-    <a href="#">Checkout (Next Step)</a>
+            <!-- Continue Shopping -->
+            <a href="/products/" class="btn">
+                Continue Shopping
+            </a>
 
-{% else %}
-    <p>Your cart is empty</p>
-{% endif %}
+            <!-- Checkout -->
+            <a href="/orders/checkout/" class="btn checkout-btn">
+                Proceed to Checkout
+            </a>
+        </div>
+
+    {% else %}
+
+        <div class="empty-cart">
+            <h2>Your cart is empty.</h2>
+            <p>Add products to continue shopping.</p>
+
+            <a href="/products/" class="btn">
+                Browse Products
+            </a>
+        </div>
+
+    {% endif %}
+
+    <div class="navigation">
+        <h3>Quick Navigation</h3>
+        <ul>
+            <li><a href="/products/">Products</a></li>
+            <li><a href="/orders/">Orders</a></li>
+            <li><a href="/payments/">Payment System</a></li>
+            <li><a href="/orders/vendor/">Vendor Dashboard</a></li>
+            <li><a href="/orders/commission/">Commission Dashboard</a></li>
+            <li><a href="/orders/analytics/">Analytics Dashboard</a></li>
+            <li><a href="/admin/">Admin Panel</a></li>
+        </ul>
+    </div>
+
+</div>
 
 </body>
 </html>

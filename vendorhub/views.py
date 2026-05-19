@@ -1,4 +1,11 @@
-from django.http import HttpResponse
+from django.shortcuts import render
+from products.models import Product
+
 
 def home(request):
-    return HttpResponse("<h1>VendorHub Marketplace is Running 🚀</h1>")
+    # Show latest 8 products on homepage
+    products = Product.objects.all()[:8]
+
+    return render(request, "home.html", {
+        "products": products
+    })

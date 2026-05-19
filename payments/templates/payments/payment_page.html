@@ -1,46 +1,95 @@
+<!-- payments/templates/payments/payment_page.html -->
+<!-- Replace your entire payment_page.html with this working code -->
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Payment Page</title>
+    <title>Payment - VendorHub</title>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 
-<h2>Pay for Order #{{ order.id }}</h2>
-<p>Amount: ₹{{ order.total_amount }}</p>
+    <h1>Complete Payment</h1>
 
-<button id="pay-btn">Pay Now</button>
+    <p><strong>Order ID:</strong> {{ order.id }}</p>
+    <p><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
 
-<form id="payment-form" method="POST" action="{% url 'payment_success' %}">
-    {% csrf_token %}
-    <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
-    <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
-    <input type="hidden" name="razorpay_signature" id="razorpay_signature">
-</form>
+    <button id="pay-btn"
+            style="padding:12px 24px;
+                   background:#28a745;
+                   color:white;
+                   border:none;
+                   border-radius:5px;
+                   font-size:18px;
+                   cursor:pointer;">
+        Pay Now
+    </button>
 
-<script>
-var options = {
-    "key": "{{ razorpay_key }}",
-    "amount": "{{ payment.amount }}",
-    "currency": "INR",
-    "order_id": "{{ payment.razorpay_order_id }}",
+    <script>
+        document.getElementById("pay-btn").onclick = function (e) {
+            e.preventDefault();
 
-    "handler": function (response){
-        document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
-        document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
-        document.getElementById('razorpay_signature').value = response.razorpay_signature;
+            var options = {
+                "key": "{{ razorpay_key_id }}",
+                "amount": "{{ amount }}",   // in paise
+                "currency": "{{ currency }}",
+                "name": "VendorHub",
+                "description": "Order Payment",
+                "order_id": "{{ razorpay_order_id }}",
 
-        document.getElementById('payment-form').submit();
-    }
-};
+                "handler": function (response) {
+                    // Create a form and POST payment details to Django
+                    var form = document.createElement("form");
+                    form.method = "POST";
+                    form.action = "{% url 'payment_success' %}";
 
-var rzp = new Razorpay(options);
+                    // CSRF token
+                    var csrf = document.createElement("input");
+                    csrf.type = "hidden";
+                    csrf.name = "csrfmiddlewaretoken";
+                    csrf.value = "{{ csrf_token }}";
+                    form.appendChild(csrf);
 
-document.getElementById('pay-btn').onclick = function(e){
-    rzp.open();
-    e.preventDefault();
-}
-</script>
+                    // Razorpay order ID
+                    var orderId = document.createElement("input");
+                    orderId.type = "hidden";
+                    orderId.name = "razorpay_order_id";
+                    orderId.value = response.razorpay_order_id;
+                    form.appendChild(orderId);
+
+                    // Razorpay payment ID
+                    var paymentId = document.createElement("input");
+                    paymentId.type = "hidden";
+                    paymentId.name = "razorpay_payment_id";
+                    paymentId.value = response.razorpay_payment_id;
+                    form.appendChild(paymentId);
+
+                    // Signature
+                    var signature = document.createElement("input");
+                    signature.type = "hidden";
+                    signature.name = "razorpay_signature";
+                    signature.value = response.razorpay_signature;
+                    form.appendChild(signature);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                },
+
+                "modal": {
+                    "ondismiss": function () {
+                        window.location.href = "{% url 'payment_failed' %}";
+                    }
+                },
+
+                "theme": {
+                    "color": "#3399cc"
+                }
+            };
+
+            var rzp = new Razorpay(options);
+            rzp.open();
+        };
+    </script>
 
 </body>
 </html>

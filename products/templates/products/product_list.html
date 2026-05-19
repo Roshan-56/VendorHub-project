@@ -2,43 +2,130 @@
 <html>
 <head>
     <title>{{ product.name }} - VendorHub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        img {
+            max-width: 350px;
+            border-radius: 10px;
+        }
+
+        .price {
+            font-size: 28px;
+            color: green;
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin: 10px 5px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .description {
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        .stock {
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .section {
+            margin-top: 30px;
+        }
+
+        ul {
+            line-height: 1.8;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- PRODUCT TITLE -->
+<div class="container">
+
+    <a href="/products/" class="btn">← Back to Products</a>
+
     <h1>{{ product.name }}</h1>
 
-    <!-- PRODUCT IMAGE -->
     {% if product.image %}
-        <img src="{{ product.image.url }}" width="300">
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+    {% else %}
+        <p>No image available.</p>
     {% endif %}
 
-    <!-- PRODUCT INFO -->
-    <p><b>Price:</b> ₹{{ product.price }}</p>
-    <p><b>Description:</b> {{ product.description }}</p>
+    <p class="price">₹{{ product.price }}</p>
 
-    <p><b>Stock:</b> {{ product.stock }}</p>
+    <p class="stock">
+        Available Stock:
+        {% if product.stock %}
+            {{ product.stock }}
+        {% else %}
+            In Stock
+        {% endif %}
+    </p>
 
-    <!-- CATEGORY -->
-    {% if product.category %}
-        <p><b>Category:</b> {{ product.category.name }}</p>
-    {% endif %}
+    <div class="description">
+        <h3>Description</h3>
+        <p>
+            {% if product.description %}
+                {{ product.description }}
+            {% else %}
+                Fresh quality product available at the best price.
+            {% endif %}
+        </p>
+    </div>
 
-    <!-- VENDOR INFO -->
-    <p><b>Seller:</b> {{ product.vendor.store_name }}</p>
+    <div class="section">
+        <h3>Actions</h3>
 
-    <hr>
-
-    <!-- ADD TO CART BUTTON -->
-    <a href="{% url 'add_to_cart' product.id %}">
-        <button style="padding:10px 20px; background:green; color:white;">
+        <!-- Add to Cart -->
+        <a href="/cart/add/{{ product.id }}/" class="btn">
             Add to Cart
-        </button>
-    </a>
+        </a>
 
-    <!-- BACK TO PRODUCTS -->
-    <br><br>
-    <a href="{% url 'product_list' %}">← Back to Products</a>
+        <!-- Buy Now -->
+        <a href="/cart/" class="btn">
+            Buy Now
+        </a>
+    </div>
+
+    <div class="section">
+        <h3>Quick Navigation</h3>
+        <ul>
+            <li><a href="/cart/">View Cart</a></li>
+            <li><a href="/orders/">My Orders</a></li>
+            <li><a href="/payments/">Payment System</a></li>
+            <li><a href="/orders/vendor/">Vendor Dashboard</a></li>
+            <li><a href="/orders/commission/">Commission Dashboard</a></li>
+            <li><a href="/orders/analytics/">Analytics Dashboard</a></li>
+            <li><a href="/admin/">Admin Panel</a></li>
+        </ul>
+    </div>
+
+</div>
 
 </body>
 </html>

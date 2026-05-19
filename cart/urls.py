@@ -1,9 +1,17 @@
+# cart/urls.py
+# Replace your entire cart/urls.py with this code.
+
 from django.urls import path
 from . import views
 
 urlpatterns = [
+    # View cart
     path('', views.cart_detail, name='cart_detail'),
+
+    # Add product to cart
     path('add/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
-    path('remove/<int:item_id>/', views.remove_item, name='remove_item'),
-    path('update/<int:item_id>/<str:action>/', views.update_quantity, name='update_quantity'),
+
+    # Remove item from cart
+    # IMPORTANT: uses remove_from_cart, not remove_item
+    path('remove/<int:cart_id>/', views.remove_from_cart, name='remove_from_cart'),
 ]

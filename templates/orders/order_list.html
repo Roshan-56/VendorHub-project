@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Orders - VendorHub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f8f9fa;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .order-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .status {
+            font-weight: bold;
+            color: green;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .empty {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📦 My Orders</h1>
+
+    {% if orders %}
+        {% for order in orders %}
+            <div class="order-card">
+                <h3>Order #{{ order.id }}</h3>
+                <p><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
+                <p><strong>Status:</strong>
+                    <span class="status">{{ order.status }}</span>
+                </p>
+                <p><strong>Created:</strong> {{ order.created_at }}</p>
+
+                <a href="/orders/track/{{ order.id }}/" class="btn">
+                    Track Order
+                </a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty">
+            <p>No orders found.</p>
+            <a href="/products/" class="btn">Browse Products</a>
+        </div>
+    {% endif %}
+
+</body>
+</html>

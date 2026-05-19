@@ -20,7 +20,6 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -29,14 +28,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'products',
     'accounts',
     'vendors',
-    'products',
-    'cart.apps.CartConfig',   # ✅ ONLY THIS (recommended)
+    'cart',
     'orders',
     'payments',
-    'reviews',
-    'dashboard',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -55,11 +52,15 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'vendorhub.urls'
 
 
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
+        'DIRS': [BASE_DIR / 'templates'],   # Global templates folder
+        'APP_DIRS': True,                   # Enable templates inside each app
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
@@ -69,7 +70,6 @@ TEMPLATES = [
         },
     },
 ]
-
 
 WSGI_APPLICATION = 'vendorhub.wsgi.application'
 

@@ -1,26 +1,80 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>VendorHub</title>
+    <title>VendorHub Marketplace</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .navbar {
+            background: #007bff;
+            padding: 15px;
+            margin-bottom: 30px;
+        }
+
+        .navbar a {
+            color: white;
+            margin-right: 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            width: 300px;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+    </style>
 </head>
 <body>
+
+    <!-- Navigation Menu -->
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="/cart/">Cart</a>
+        <a href="/orders/">Orders</a>
+        <a href="/payments/">Payments</a>
+        <a href="/vendors/dashboard/">Vendor Dashboard</a>
+        <a href="/vendors/commission/">Commission Dashboard</a>
+        <a href="/vendors/analytics/">Analytics Dashboard</a>
+        <a href="/admin/">Admin Panel</a>
+    </div>
+
     <h1>All Products</h1>
 
-    {% for product in products %}
-        <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-            <h2>{{ product.name }}</h2>
+    <div class="products">
+        {% for product in products %}
+        <div class="product-card">
 
             {% if product.image %}
-                <img src="{{ product.image.url }}" width="200">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
             {% endif %}
 
+            <h2>{{ product.name }}</h2>
             <p>{{ product.description }}</p>
             <p><strong>₹{{ product.price }}</strong></p>
             <p>Stock: {{ product.stock }}</p>
             <p>Vendor: {{ product.vendor.store_name }}</p>
+
+            <a href="{% url 'product_detail' product.slug %}">View Details</a>
+
         </div>
-    {% empty %}
-        <p>No products available.</p>
-    {% endfor %}
+        {% endfor %}
+    </div>
+
 </body>
 </html>

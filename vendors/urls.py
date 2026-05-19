@@ -1,5 +1,6 @@
 from django.urls import path
+from . import views
 
 urlpatterns = [
-    # we will add vendor pages later
+    path('dashboard/', views.vendor_dashboard, name='vendor_dashboard'),
 ]

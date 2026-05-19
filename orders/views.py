@@ -1,150 +1,203 @@
+# orders/views.py
+# Replace your ENTIRE orders/views.py with this complete code.
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.conf import settings
-from django.http import JsonResponse
+from django.contrib import messages
 
-import razorpay
-
-from cart.models import Cart, CartItem
+from cart.models import Cart
 from .models import Order, OrderItem
-from vendors.models import VendorProfile
-from products.models import Product
-
-from .utils import (
-    send_order_confirmation_email,
-    send_vendor_new_order_email,
-    send_payment_success_email
-)
-
-# Razorpay client
-client = razorpay.Client(
-    auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
-)
 
 
-# ---------------------------
-# CHECKOUT (CREATE ORDER)
-# ---------------------------
+# orders/views.py
+# Replace ONLY the checkout() function with this corrected version.
+# Your current Order model does NOT contain an 'address' field.
+
+# orders/views.py
+# Replace ONLY the checkout() function with this version.
+# Your MySQL database still requires the 'address' column,
+# so we must provide it when creating the Order.
+
 @login_required
 def checkout(request):
-    cart = get_object_or_404(Cart, user=request.user)
-    cart_items = CartItem.objects.filter(cart=cart)
+    """
+    Create an order from the user's cart and redirect to payment.
+    """
 
-    if not cart_items.exists():
-        return redirect('product_list')
+    # Get user's cart
+    cart = Cart.objects.filter(user=request.user).first()
 
-    total = sum(item.product.price * item.quantity for item in cart_items)
+    # Check if cart is empty
+    if not cart or not cart.items.exists():
+        messages.error(request, "Your cart is empty.")
+        return redirect("cart_detail")
 
-    # Create Razorpay Order
-    razorpay_order = client.order.create({
-        "amount": int(total * 100),  # paise
-        "currency": "INR",
-        "payment_capture": 1
-    })
+    # Get cart items
+    cart_items = cart.items.all()
 
-    # Create Order in DB
+    # Calculate total amount
+    total = 0
+    for item in cart_items:
+        total += item.product.price * item.quantity
+
+    # Create order
+    # IMPORTANT: Even if your current Order model does not show 'address',
+    # the database table still has this required column.
     order = Order.objects.create(
         user=request.user,
         total_amount=total,
-        payment_id=razorpay_order['id'],
-        status="Pending"
+        status="pending",
+        address="Default Delivery Address"
     )
 
-    # Create Order Items (MULTI VENDOR)
+    # Create order items
     for item in cart_items:
-        product = item.product
-
         OrderItem.objects.create(
             order=order,
-            product=product,
-            vendor=product.vendor,
+            product=item.product,
             quantity=item.quantity,
-            price=product.price
+            price=item.product.price,
+            vendor=getattr(item.product, "vendor", None)
         )
 
-    # Clear cart
-    cart_items.delete()
+    # Clear cart after successful order creation
+    cart.items.all().delete()
 
-    # Send email (order placed)
-    send_order_confirmation_email(order, request.user.email)
+    messages.success(request, "Order created successfully.")
 
-    return render(request, "orders/payment_page.html", {
-        "order": order,
-        "razorpay_order": razorpay_order,
-        "razorpay_key": settings.RAZORPAY_KEY_ID
+    # Redirect to payment page
+    return redirect("initiate_payment", order_id=order.id)
+
+@login_required
+def order_list(request):
+    """
+    Show all orders for the logged-in user.
+    """
+    orders = Order.objects.filter(user=request.user).order_by("-created_at")
+
+    return render(request, "orders/order_list.html", {
+        "orders": orders
     })
 
 
-# ---------------------------
-# PAYMENT SUCCESS HANDLER
-# ---------------------------
 @login_required
-def payment_success(request):
-    payment_id = request.GET.get('payment_id')
-    order_id = request.GET.get('order_id')
-
-    order = get_object_or_404(Order, payment_id=order_id)
-
-    order.status = "Processing"
-    order.save()
-
-    # Send success emails
-    send_payment_success_email(order, request.user.email)
-
-    # Vendor notifications
-    vendors = set(
-        item.vendor.user.email
-        for item in order.orderitem_set.all()
-        if item.vendor
+def order_tracking(request, order_id):
+    """
+    Show tracking information for a specific order.
+    """
+    order = get_object_or_404(
+        Order,
+        id=order_id,
+        user=request.user
     )
 
-    for email in vendors:
-        send_vendor_new_order_email(email, order)
-
-    return render(request, "orders/payment_success.html", {
+    return render(request, "orders/order_tracking.html", {
         "order": order
     })
 
 
-# ---------------------------
-# ORDER TRACKING (CUSTOMER)
-# ---------------------------
 @login_required
-def order_tracking(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
-
-    items = OrderItem.objects.filter(order=order)
-
-    return render(request, "orders/order_tracking.html", {
-        "order": order,
-        "items": items
-    })
+def vendor_dashboard(request):
+    """
+    Vendor dashboard page.
+    """
+    return render(request, "orders/vendor_dashboard.html")
 
 
-# ---------------------------
-# VENDOR DASHBOARD ORDERS
-# ---------------------------
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
+
 @login_required
-def vendor_orders(request):
-    vendor = get_object_or_404(VendorProfile, user=request.user)
-
-    items = OrderItem.objects.filter(vendor=vendor).order_by('-created_at')
-
-    return render(request, "orders/vendor_orders.html", {
-        "items": items
-    })
+def commission_dashboard(request):
+    return render(request, 'orders/commission_dashboard.html')
 
 
-# ---------------------------
-# VENDOR UPDATE ORDER STATUS
-# ---------------------------
+# orders/views.py
+# Replace ONLY the analytics_dashboard() function with this code.
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.db.models import Sum, Count
+from .models import Order, OrderItem
+from products.models import Product
+from vendors.models import VendorProfile
+
+
 @login_required
-def update_order_status(request, item_id):
-    vendor = get_object_or_404(VendorProfile, user=request.user)
-    item = get_object_or_404(OrderItem, id=item_id, vendor=vendor)
+def analytics_dashboard(request):
+    # Total Revenue (only paid orders)
+    total_revenue = (
+        Order.objects.filter(status='paid')
+        .aggregate(total=Sum('total_amount'))['total'] or 0
+    )
 
-    if request.method == "POST":
-        item.status = request.POST.get("status")
-        item.save()
+    # Total Orders
+    total_orders = Order.objects.count()
 
-    return redirect('vendor_orders')
+    # Active Vendors
+    active_vendors = VendorProfile.objects.count()
+
+    # Total Products
+    total_products = Product.objects.count()
+
+    # Paid Orders
+    paid_orders = Order.objects.filter(status='paid').count()
+
+    # Pending Orders
+    pending_orders = Order.objects.filter(status='pending').count()
+
+    # Success Rate
+    if total_orders > 0:
+        success_rate = round((paid_orders / total_orders) * 100, 2)
+    else:
+        success_rate = 0
+
+    # Top Selling Products
+    top_products = (
+        OrderItem.objects
+        .values('product__name')
+        .annotate(total_sold=Sum('quantity'))
+        .order_by('-total_sold')[:5]
+    )
+
+    context = {
+        'total_revenue': total_revenue,
+        'total_orders': total_orders,
+        'active_vendors': active_vendors,
+        'total_products': total_products,
+        'paid_orders': paid_orders,
+        'pending_orders': pending_orders,
+        'success_rate': success_rate,
+        'top_products': top_products,
+    }
+
+    return render(request, 'orders/analytics_dashboard.html', context)
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from .models import Order
+from products.models import Product
+
+
+@login_required
+def vendor_dashboard(request):
+    total_sales = (
+        Order.objects.filter(status='paid')
+        .aggregate(total=Sum('total_amount'))['total'] or 0
+    )
+
+    total_orders = Order.objects.count()
+    total_products = Product.objects.count()
+    pending_orders = Order.objects.filter(status='pending').count()
+    recent_orders = Order.objects.order_by('-id')[:5]
+
+    context = {
+        'total_sales': total_sales,
+        'total_orders': total_orders,
+        'total_products': total_products,
+        'pending_orders': pending_orders,
+        'recent_orders': recent_orders,
+    }
+
+    return render(request, 'orders/vendor_dashboard.html', context)
